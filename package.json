@@ -1,6 +1,22 @@
 {
+  "name": "custom-replace-babel-plugin",
+  "version": "0.0.1",
+  "description": "clear or replace content by string or regex by custom for babel",
+  "repository": "https://github.com/sunjinkang/custom_replace_babel_plugin/tree/main",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "replace": "node ./src/index.js",
+    "release": "babel src --out-dir dist"
+  },
   "dependencies": {
     "@babel/parser": "^7.21.8",
-    "@babel/traverse": "^7.21.5"
-  }
+    "@babel/traverse": "^7.21.5",
+    "uglify-js": "^3.17.4"
+  },
+  "keywords": [
+    "babel-plugin",
+    "replace",
+    "minify"
+  ]
 }
