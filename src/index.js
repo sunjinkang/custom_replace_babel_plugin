@@ -1,16 +1,5 @@
 var UglifyJS = require('uglify-js');
 
-var compressor = UglifyJS.Compressor();
-
-class LocationFixer extends UglifyJS.TreeWalker {
-  constructor(path) {
-    var filename = path.hub.file.opts.filenameRelative;
-    super((node) => {
-      node.start.file = node.end.file = filename;
-    });
-  }
-}
-
 module.exports = function (babel) {
   var t = babel.types;
 
@@ -57,17 +46,18 @@ module.exports = function (babel) {
         path.traverse(sourceVisitor, state);
       },
       Program(ast) {
-        const uAST = UglifyJS.AST_Node.from_mozilla_ast(ast);
-        uAST.walk(new LocationFixer(this));
+        // https://lisperator.net/uglifyjs/spidermonkey
+        var uglifyAST = UglifyJS.AST_Node.from_mozilla_ast(ast);
+        // compress code
+        uglifyAST.figure_out_scope();
+        var compressor = UglifyJS.Compressor();
+        uglifyAST = uglifyAST.transform(compressor);
+        // mangle names after compression
+        uglifyAST.figure_out_scope();
+        uglifyAST.compute_char_frequency();
+        uglifyAST.mangle_names();
 
-        uAST.figure_out_scope();
-        uAST = uAST.transform(compressor);
-
-        uAST.figure_out_scope();
-        uAST.compute_char_frequency();
-        uAST.mangle_names();
-
-        return uAST.to_mozilla_ast();
+        return uglifyAST.to_mozilla_ast();
       },
     },
   };
